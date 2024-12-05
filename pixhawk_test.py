@@ -16,6 +16,9 @@ ax = fig.add_subplot(111, projection='3d')
 ax.set_xlim([-1, 1])
 ax.set_ylim([-1, 1])
 ax.set_zlim([-1, 1])
+ax.set_xlabel("Roll (X)")
+ax.set_ylabel("Pitch (Y)")
+ax.set_zlabel("Yaw (Z)")
 ax.set_title("Pixhawk Gerçek Zamanlı Hareket")
 
 # Güncellemeler için çizim fonksiyonu
@@ -32,10 +35,13 @@ while True:
         z = np.sin(yaw)
 
         ax.cla()  # Eski veriyi temizle
-        ax.quiver(0, 0, 0, x, y, z, length=0.5)
+        ax.quiver(0, 0, 0, x, y, z, length=0.5, color='b')
         ax.set_xlim([-1, 1])
         ax.set_ylim([-1, 1])
         ax.set_zlim([-1, 1])
+        ax.set_xlabel("Roll (X)")
+        ax.set_ylabel("Pitch (Y)")
+        ax.set_zlabel("Yaw (Z)")
         ax.set_title("Pixhawk Gerçek Zamanlı Hareket")
 
         plt.pause(0.01)  # Gerçek zamanlı güncelleme
