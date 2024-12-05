@@ -1,36 +1,41 @@
-from pymavlink import mavutil
-
-# Pixhawk bağlantısı kur
-connection = mavutil.mavlink_connection('COM7', baud=115200)  # COM portunu kontrol edin.
-
-# Bağlantıyı bekle
-connection.wait_heartbeat()
-print("Pixhawk ile bağlantı kuruldu.")
-
-
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+from pymavlink import mavutil
 
-def plot_orientation(roll, pitch, yaw):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    
-    # Bir vektör ile simüle et
-    ax.quiver(0, 0, 0, np.cos(roll), np.sin(pitch), np.sin(yaw))
-    ax.set_xlim([-1, 1])
-    ax.set_ylim([-1, 1])
-    ax.set_zlim([-1, 1])
-    ax.set_title("Pixhawk Orientation")
-    plt.show()
+# Pixhawk bağlantısı
+connection = mavutil.mavlink_connection('COM7', baud=115200)
+connection.wait_heartbeat()
+print("Pixhawk ile bağlantı kuruldu.")
 
-# Sürekli olarak attitude (tutum) bilgisi al
+# Gerçek zamanlı grafik
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Ekseni hazırla
+ax.set_xlim([-1, 1])
+ax.set_ylim([-1, 1])
+ax.set_zlim([-1, 1])
+ax.set_title("Pixhawk Gerçek Zamanlı Hareket")
+
+# Güncellemeler için çizim fonksiyonu
 while True:
     message = connection.recv_match(type='ATTITUDE', blocking=True)
     if message:
-        roll = message.roll  # Roll açısı (radyan)
-        pitch = message.pitch  # Pitch açısı (radyan)
-        yaw = message.yaw  # Yaw açısı (radyan)
-        
-        print(f"Roll: {roll}, Pitch: {pitch}, Yaw: {yaw}")
-        plot_orientation(roll, pitch, yaw)
+        roll = message.roll
+        pitch = message.pitch
+        yaw = message.yaw
+
+        # Yön vektörlerini hesapla
+        x = np.cos(roll)
+        y = np.sin(pitch)
+        z = np.sin(yaw)
+
+        ax.cla()  # Eski veriyi temizle
+        ax.quiver(0, 0, 0, x, y, z, length=0.5)
+        ax.set_xlim([-1, 1])
+        ax.set_ylim([-1, 1])
+        ax.set_zlim([-1, 1])
+        ax.set_title("Pixhawk Gerçek Zamanlı Hareket")
+
+        plt.pause(0.01)  # Gerçek zamanlı güncelleme
